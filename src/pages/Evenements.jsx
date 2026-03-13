@@ -10,6 +10,12 @@ import ToastContainer from '../components/ui/Toast'
 const TYPES = ['tournoi','gala','ag','reunion','autre']
 const TYPE_LABELS = { tournoi: '🏆 Tournoi', gala: '🎉 Gala', ag: '🏛️ AG', reunion: '📋 Réunion', autre: '📌 Autre' }
 const TYPE_COLORS = { tournoi: '#7B5EA7', gala: '#FF6B2B', ag: '#1A5FFF', reunion: '#0891B2', autre: '#9BA8B5' }
+async function getClubId() {
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profil } = await supabase.from('profils').select('club_id').eq('id', user.id).single()
+  return profil.club_id
+}
+
 const EMPTY = { type: 'tournoi', nom: '', description: '', lieu: '', date_debut: '', date_fin: '', capacite: '' }
 
 export default function Evenements() {
@@ -35,7 +41,8 @@ export default function Evenements() {
     if (!form.nom) return
     setSaving(true)
     const payload = { ...form, capacite: form.capacite ? parseInt(form.capacite) : null }
-    const { error } = await supabase.from('evenements').insert(payload)
+    const club_id = await getClubId()
+    const { error } = await supabase.from('evenements').insert({ ...payload, club_id })
     if (error) toastError(error.message)
     else { success('Événement créé ✓'); setModal(false); setForm(EMPTY); load() }
     setSaving(false)
