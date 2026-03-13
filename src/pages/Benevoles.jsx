@@ -39,21 +39,26 @@ export default function Benevoles() {
 
   const set = k => e => setFormMatch(f => ({ ...f, [k]: e.target.value }))
 
-  async function saveMatch() {
-    setSaving(true)
-    const { data: newMatch, error } = await supabase.from('matchs').insert(formMatch).select().single()
-    if (error) { toastError(error.message); setSaving(false); return }
+async function saveMatch() {
+  setSaving(true)
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profil } = await supabase.from('profils').select('club_id').eq('id', user.id).single()
+  
+  const { data: newMatch, error } = await supabase
+    .from('matchs')
+    .insert({ ...formMatch, club_id: profil.club_id })
+    .select().single()
+  if (error) { toastError(error.message); setSaving(false); return }
 
-    // Créer les rôles par défaut
-    const roles = ROLES_DEFAULT.map(nom_role => ({ match_id: newMatch.id, nom_role, quota: nom_role.includes('Buvette') || nom_role.includes('Table') ? 2 : 1 }))
-    await supabase.from('roles_benevoles').insert(roles)
+  const roles = ROLES_DEFAULT.map(nom_role => ({ match_id: newMatch.id, nom_role, quota: nom_role.includes('Buvette') || nom_role.includes('Table') ? 2 : 1 }))
+  await supabase.from('roles_benevoles').insert(roles)
 
-    success('Match créé avec les rôles par défaut ✓')
-    setModalMatch(false)
-    setFormMatch(EMPTY_MATCH)
-    load()
-    setSaving(false)
-  }
+  success('Match créé avec les rôles par défaut ✓')
+  setModalMatch(false)
+  setFormMatch(EMPTY_MATCH)
+  load()
+  setSaving(false)
+}
 
   async function saveAffect() {
     if (!formAffect.membre_id) return
