@@ -1,0 +1,45 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #1A5FFF;
+  --blue-l: #EEF3FF;
+  --blue-2: #0A4AE8;
+  --navy: #0B1A3E;
+  --orange: #FF6B2B;
+  --orange-l: #FFF3EE;
+  --white: #FFFFFF;
+  --off: #F5F7FA;
+  --gray: #6B7A8D;
+  --gray-2: #9BA8B5;
+  --gray-3: #E2E8F0;
+  --green: #00A86B;
+  --green-l: #E6F7F1;
+  --red: #E53E3E;
+  --red-l: #FFF0F0;
+  --yellow: #F6A623;
+  --yellow-l: #FFF8EC;
+  --purple: #7B5EA7;
+  --purple-l: #F0EEFF;
+  --teal: #0891B2;
+  --teal-l: #E0F7FA;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  color: var(--navy);
+  background: var(--off);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-2); }
+
+/* Utility */
+.font-display { font-family: 'Big Shoulders Display', sans-serif; }
