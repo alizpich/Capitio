@@ -19,6 +19,12 @@ const EMPTY_FORM = {
   certificat_date: '',
 }
 
+async function getClubId() {
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: profil } = await supabase.from('profils').select('club_id').eq('id', user.id).single()
+  return profil.club_id
+}
+
 export default function Membres() {
   const [membres, setMembres] = useState([])
   const [loading, setLoading] = useState(true)
@@ -77,7 +83,8 @@ export default function Membres() {
       const res = await supabase.from('membres').update(payload).eq('id', editId)
       err = res.error
     } else {
-      const res = await supabase.from('membres').insert(payload)
+      const club_id = await getClubId()
+      const res = await supabase.from('membres').insert({ ...payload, club_id })
       err = res.error
     }
 
@@ -107,14 +114,12 @@ export default function Membres() {
     >
       <ToastContainer toasts={toasts} />
 
-      {/* Alertes certificats */}
       {membres.some(m => m.certificat_date && new Date(m.certificat_date) < new Date(Date.now() + 14*864e5)) && (
         <div style={{ background: '#FFF3EE', border: '1px solid rgba(255,107,43,0.25)', borderRadius: 12, padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, fontSize: '0.83rem' }}>
           ⚠️ <strong>Certificats médicaux</strong> — certains membres ont un certificat expirant sous 14 jours.
         </div>
       )}
 
-      {/* Panel coachs */}
       {coachsPanel.length > 0 && (filtre === 'tous' || filtre === 'coach') && (
         <div style={{ background: '#fff', border: '1.5px solid rgba(123,94,167,0.25)', borderRadius: 14, padding: 18, marginBottom: 16 }}>
           <div style={{ background: '#F0EEFF', margin: '-18px -18px 14px', padding: '11px 18px', borderRadius: '12px 12px 0 0', fontSize: '0.78rem', fontWeight: 700, color: '#7B5EA7' }}>
@@ -144,7 +149,6 @@ export default function Membres() {
         </div>
       )}
 
-      {/* Filtres */}
       <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 14, alignItems: 'center' }}>
         <div style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8, background: '#F5F7FA', border: '1.5px solid #E2E8F0', borderRadius: 9, padding: '8px 14px', fontSize: '0.82rem', color: '#9BA8B5' }}>
           <input value={search} onChange={e => setSearch(e.target.value)}
@@ -171,7 +175,6 @@ export default function Membres() {
         })}
       </div>
 
-      {/* Table */}
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -245,7 +248,6 @@ export default function Membres() {
         </table>
       </div>
 
-      {/* Modal ajout/édition */}
       <Modal
         open={modal}
         onClose={() => setModal(false)}
